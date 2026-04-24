@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoulSync — Talk to Legends</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=UnifrakturMaguntia&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════
+   ROOT & RESET
+═══════════════════════════════════════════ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #08070f;
+            --surface: rgba(16, 15, 28, 0.6);
+            --surface2: rgba(24, 22, 38, 0.7);
+            --border: rgba(255, 255, 255, 0.07);
+            --text: #e8e4ff;
+            --muted: #5a5778;
+            --accent: #7c6fe0;
+            --accent-bg: rgba(124, 111, 224, 0.08);
+            --heading-font: 'Cinzel', serif;
+            --body-font: 'DM Sans', sans-serif;
+            --glow: rgba(124, 111, 224, 0.2);
+            --particle-color: rgba(255, 255, 255, 0.7);
+            --nebula1: rgba(124, 111, 224, 0.06);
+            --nebula2: rgba(236, 72, 153, 0.04);
+            --nebula3: rgba(34, 197, 160, 0.04);
+        }
+
+        /* ── GOTHIC THEMES ── */
+        body.theme-romantic {
+            --bg: #0d0008;
+            --surface: rgba(30, 5, 20, 0.55);
+            --surface2: rgba(50, 8, 32, 0.65);
+            --border: rgba(200, 80, 120, 0.12);
+            --text: #f0d8e8;
+            --muted: #7a4060;
+            --accent: #c0395a;
+            --accent-bg: rgba(192, 57, 90, 0.1);
+            --glow: rgba(192, 57, 90, 0.25);
+            --heading-font: 'Cinzel', serif;
+            --nebula1: rgba(128, 0, 32, 0.1);
+            --nebula2: rgba(74, 14, 78, 0.08);
+            --nebula3: rgba(192, 57, 90, 0.06);
+            --particle-color: rgba(255, 160, 180, 0.6);
+        }
+
+        body.theme-luxury {
+            --bg: #07060a;
+            --surface: rgba(11, 11, 11, 0.6);
+            --surface2: rgba(18, 15, 8, 0.7);
+            --border: rgba(212, 175, 55, 0.12);
+            --text: #f5edd8;
+            --muted: #7a6a40;
+            --accent: #d4af37;
+            --accent-bg: rgba(212, 175, 55, 0.08);
+            --glow: rgba(212, 175, 55, 0.2);
+            --heading-font: 'Cinzel Decorative', serif;
+            --nebula1: rgba(212, 175, 55, 0.06);
+            --nebula2: rgba(20, 60, 40, 0.08);
+            --nebula3: rgba(212, 175, 55, 0.04);
+            --particle-color: rgba(255, 220, 100, 0.6);
+        }
+
+        body.theme-victorian {
+            --bg: #090b0d;
+            --surface: rgba(15, 18, 22, 0.6);
+            --surface2: rgba(22, 26, 30, 0.7);
+            --border: rgba(150, 140, 120, 0.1);
+            --text: #ddd8cc;
+            --muted: #5a5648;
+            --accent: #8a7a60;
+            --accent-bg: rgba(138, 122, 96, 0.1);
+            --glow: rgba(138, 122, 96, 0.2);
+            --heading-font: 'UnifrakturMaguntia', cursive;
+            --nebula1: rgba(47, 53, 59, 0.1);
+            --nebula2: rgba(74, 28, 28, 0.07);
+            --nebula3: rgba(80, 75, 65, 0.06);
+            --particle-color: rgba(180, 170, 150, 0.4);
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--body-font);
+            overflow: hidden;
+            transition: background 0.8s ease, color 0.5s ease;
+        }
+
+        #space-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        #ambient-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #ambient-canvas.show {
+            opacity: 1;
+        }
+
+        #theme-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            pointer-events: none;
+        }
+
+        #theme-bg.show {
+            opacity: 1;
+        }
+
+        body.theme-romantic #theme-bg {
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 40%, rgba(128, 0, 32, 0.18) 0%, transparent 65%),
+                radial-gradient(ellipse 60% 50% at 80% 70%, rgba(74, 14, 78, 0.14) 0%, transparent 65%),
+                radial-gradient(ellipse 40% 40% at 50% 10%, rgba(192, 57, 90, 0.08) 0%, transparent 60%);
+        }
+
+        body.theme-luxury #theme-bg {
+            background:
+                radial-gradient(ellipse 70% 50% at 50% 50%, rgba(212, 175, 55, 0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 10% 80%, rgba(20, 60, 40, 0.1) 0%, transparent 60%),
+                repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(212, 175, 55, 0.012) 40px, rgba(212, 175, 55, 0.012) 41px);
+        }
+
+        body.theme-victorian #theme-bg {
+            background:
+                radial-gradient(ellipse 90% 50% at 50% 100%, rgba(47, 53, 59, 0.3) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 10% 20%, rgba(74, 28, 28, 0.12) 0%, transparent 60%),
+                repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(150, 140, 120, 0.015) 60px, rgba(150, 140, 120, 0.015) 61px),
+                repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(150, 140, 120, 0.015) 60px, rgba(150, 140, 120, 0.015) 61px);
+        }
+
+        /* ═══════════════════════════════════════════
+   LANDING PAGE
+═══════════════════════════════════════════ */
+        #landing {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            transition: opacity 0.6s ease;
+        }
+
+        #landing.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 15, 28, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            border-radius: 99px;
+            padding: 6px 18px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 24px;
+            animation: fadeDown 0.7s ease both;
+        }
+
+        .logo-badge em {
+            color: var(--accent);
+            font-style: normal;
+        }
+
+        h1.hero {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: clamp(28px, 6vw, 54px);
+            font-weight: 700;
+            line-height: 1.1;
+            color: #f0eeff;
+            text-align: center;
+            animation: fadeDown 0.7s 0.1s ease both;
+            margin-bottom: 12px;
+            text-shadow: 0 0 40px rgba(124, 111, 224, 0.3);
+        }
+
+        h1.hero span {
+            background: linear-gradient(120deg, #b8a8f8, #f09ed0, #7c6fe0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.65;
+            text-align: center;
+            animation: fadeDown 0.7s 0.2s ease both;
+            margin-bottom: 36px;
+            max-width: 400px;
+        }
+
+        .persona-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 34px;
+            animation: fadeDown 0.7s 0.3s ease both;
+            max-width: 680px;
+            width: 100%;
+        }
+
+        .p-card {
+            background: rgba(16, 15, 28, 0.45);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 24px 14px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .p-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--card-glow);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            border-radius: inherit;
+        }
+
+        .p-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: var(--card-accent);
+            box-shadow: 0 8px 32px var(--card-shadow), 0 0 0 1px var(--card-accent);
+        }
+
+        .p-card:hover::after {
+            opacity: 1;
+        }
+
+        .p-card-icon {
+            font-size: 42px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .p-card-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e8e4ff;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .p-card-role {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .enter-btn {
+            background: rgba(124, 111, 224, 0.2);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            color: var(--text);
+            border: 1px solid rgba(124, 111, 224, 0.3);
+            border-radius: 12px;
+            padding: 13px 38px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: var(--body-font);
+            cursor: pointer;
+            transition: all 0.25s;
+            animation: fadeDown 0.7s 0.4s ease both;
+            letter-spacing: 0.4px;
+        }
+
+        .enter-btn:hover {
+            background: rgba(124, 111, 224, 0.28);
+            border-color: rgba(124, 111, 224, 0.6);
+            transform: translateY(-1px);
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ═══════════════════════════════════════════
+   CHAT APP
+═══════════════════════════════════════════ */
+        #chatapp {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        #chatapp.active {
+            display: flex;
+        }
+
+        #chatapp.visible {
+            opacity: 1;
+        }
+
+        #persona-bar {
+            background: var(--surface);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border-bottom: 1px solid var(--border);
+            padding: 8px 12px;
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            flex-shrink: 0;
+            transition: background 0.6s ease, border-color 0.6s ease;
+        }
+
+        #persona-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .persona-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+            padding: 7px 11px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            transition: all 0.2s;
+            min-width: 62px;
+            flex-shrink: 0;
+        }
+
+        .persona-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .persona-btn.active {
+            border-color: var(--accent);
+            background: var(--accent-bg);
+        }
+
+        .pb-icon {
+            font-size: 19px;
+            line-height: 1;
+        }
+
+        .pb-name {
+            font-size: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--muted);
+            text-align: center;
+            transition: color 0.3s;
+        }
+
+        .persona-btn.active .pb-name {
+            color: var(--accent);
+        }
+
+        #chat-header {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            flex-shrink: 0;
+            background: var(--surface);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            transition: background 0.6s ease, border-color 0.6s ease;
+        }
+
+        #hdr-icon {
+            font-size: 24px;
+        }
+
+        #hdr-name {
+            font-family: var(--heading-font);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            transition: font-family 0.3s;
+        }
+
+        #hdr-tag {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 1px;
+        }
+
+        .online {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+            margin-left: auto;
+            flex-shrink: 0;
+            box-shadow: 0 0 6px #22c55e;
+        }
+
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .msg {
+            display: flex;
+            gap: 8px;
+            max-width: 82%;
+            animation: msgIn 0.28s ease;
+        }
+
+        @keyframes msgIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .mavatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .mbubble {
+            padding: 10px 13px;
+            border-radius: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            max-width: 100%;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        .msg.ai .mbubble {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .msg.user .mbubble {
+            background: var(--accent);
+            color: white;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 16px var(--glow);
+        }
+
+        .msg.user .mavatar {
+            background: var(--surface2);
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        #typing {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 0 2px;
+        }
+
+        #typing.show {
+            display: flex;
+        }
+
+        .tbubble {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            padding: 10px 14px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .dot {
+            width: 5px;
+            height: 5px;
+            background: var(--muted);
+            border-radius: 50%;
+            animation: blink 1.2s infinite;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+
+            0%,
+            60%,
+            100% {
+                opacity: 0.2
+            }
+
+            30% {
+                opacity: 1
+            }
+        }
+
+        #input-area {
+            padding: 10px 14px;
+            background: var(--surface);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        #userinput {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 9px 15px;
+            color: var(--text);
+            font-size: 13px;
+            font-family: var(--body-font);
+            resize: none;
+            outline: none;
+            max-height: 96px;
+            line-height: 1.45;
+            transition: border-color 0.2s, background 0.5s;
+            backdrop-filter: blur(8px);
+            overflow-y: hidden;
+        }
+
+        #userinput:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        #sendbtn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            flex-shrink: 0;
+            transition: transform 0.15s, background 0.5s, box-shadow 0.5s;
+            box-shadow: 0 2px 12px var(--glow);
+        }
+
+        #sendbtn:hover {
+            transform: scale(1.1);
+        }
+
+        #sendbtn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            gap: 5px;
+        }
+
+        .w-icon {
+            font-size: 50px;
+            margin-bottom: 6px;
+            filter: drop-shadow(0 0 16px var(--glow));
+        }
+
+        .w-name {
+            font-family: var(--heading-font);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .w-tag {
+            font-size: 12px;
+            color: var(--muted);
+            max-width: 240px;
+            line-height: 1.55;
+            margin-top: 4px;
+        }
+
+        .starters {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-top: 16px;
+            width: 100%;
+            max-width: 285px;
+        }
+
+        .starter {
+            background: var(--surface2);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 9px 13px;
+            font-size: 12px;
+            color: var(--muted);
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .starter:hover {
+            border-color: var(--accent);
+            color: var(--text);
+            background: var(--accent-bg);
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="space-canvas"></canvas>
+    <canvas id="ambient-canvas"></canvas>
+    <div id="theme-bg"></div>
+
+    <div id="landing">
+        <div class="logo-badge">✦ <em>SoulSync</em> ✦ Talk to Legends</div>
+        <h1 class="hero">Every answer<br>you ever <span>needed.</span></h1>
+        <p class="subtitle">Six legendary souls. One conversation at a time.<br>Hover a soul. Choose your guide. Enter
+            the realm.</p>
+
+        <div class="persona-grid">
+            <div class="p-card" data-id="rocky"
+                style="--card-accent:#7c6fe0;--card-glow:radial-gradient(ellipse at 50% 0%,rgba(124,111,224,0.12),transparent 70%);--card-shadow:rgba(124,111,224,0.15)"
+                onmouseenter="previewTheme('victorian')" onmouseleave="clearPreview()" onclick="selectPersona('rocky')">
+                <div class="p-card-icon"><img src="./images/rocky.jpg"
+                        style="width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;">
+                </div>
+                <div class="p-card-name">Rocky</div>
+                <div class="p-card-role">Stoic Bestie</div>
+            </div>
+            <div class="p-card" data-id="tyler"
+                style="--card-accent:#ef4444;--card-glow:radial-gradient(ellipse at 50% 0%,rgba(239,68,68,0.12),transparent 70%);--card-shadow:rgba(239,68,68,0.15)"
+                onmouseenter="previewTheme('victorian')" onmouseleave="clearPreview()" onclick="selectPersona('tyler')">
+                <div class="p-card-icon"><img src="./images/tyler.jpg"
+                        style="width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;">
+                </div>
+                <div class="p-card-name">Tyler Durden</div>
+                <div class="p-card-role">Chaos Strategist</div>
+            </div>
+            <div class="p-card" data-id="adi"
+                style="--card-accent:#f59e0b;--card-glow:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.12),transparent 70%);--card-shadow:rgba(245,158,11,0.15)"
+                onmouseenter="previewTheme('romantic')" onmouseleave="clearPreview()" onclick="selectPersona('adi')">
+                <div class="p-card-icon"><img src="./images/adi.jpg"
+                        style="width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;">
+                </div>
+                <div class="p-card-name">Adi</div>
+                <div class="p-card-role">Your BestFriend</div>
+            </div>
+            <div class="p-card" data-id="radha"
+                style="--card-accent:#ec4899;--card-glow:radial-gradient(ellipse at 50% 0%,rgba(236,72,153,0.12),transparent 70%);--card-shadow:rgba(236,72,153,0.15)"
+                onmouseenter="previewTheme('luxury')" onmouseleave="clearPreview()" onclick="selectPersona('radha')">
+                <div class="p-card-icon"><img src="./images/radha.jpg"
+                        style="width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;">
+                </div>
+                <div class="p-card-name">Radharani</div>
+                <div class="p-card-role">Divine Love</div>
+            </div>
+            <div class="p-card" data-id="umi"
+                style="--card-accent:#a855f7;--card-glow:radial-gradient(ellipse at 50% 0%,rgba(168,85,247,0.12),transparent 70%);--card-shadow:rgba(168,85,247,0.15)"
+                onmouseenter="previewTheme('romantic')" onmouseleave="clearPreview()" onclick="selectPersona('umi')">
+                <div class="p-card-icon"><img src="./images/umi.jpg"
+                        style="width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;">
+                </div>
+                <div class="p-card-name">Umi</div>
+                <div class="p-card-role">Your Girly BFF</div>
+            </div>
+            <div class="p-card" data-id="krishna"
+                style="--card-accent:#22c5a0;--card-glow:radial-gradient(ellipse at 50% 0%,rgba(34,197,160,0.12),transparent 70%);--card-shadow:rgba(34,197,160,0.15)"
+                onmouseenter="previewTheme('luxury')" onmouseleave="clearPreview()" onclick="selectPersona('krishna')">
+                <div class="p-card-icon"><img src="./images/krishna.jpg"
+                        style="width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;">
+                </div>
+                <div class="p-card-name">Lord Krishna</div>
+                <div class="p-card-role">Life Guide</div>
+            </div>
+        </div>
+
+        <button class="enter-btn" onclick="enterApp()">Enter the Realm ✦</button>
+    </div>
+
+    <div id="chatapp">
+        <div id="persona-bar"></div>
+        <div id="chat-header">
+            <div id="hdr-icon"><img src="./images/rocky.jpg"
+                    style="width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;"></div>
+            <div>
+                <div id="hdr-name">Rocky</div>
+                <div id="hdr-tag">Stoic alien bestie</div>
+            </div>
+            <div class="online"></div>
+        </div>
+        <div id="messages"></div>
+        <div id="typing">
+            <div class="mavatar" id="typing-avatar" style="background:var(--surface2);font-size:15px;"><img
+                    src="./images/rocky.jpg"
+                    style="width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;"></div>
+            <div class="tbubble">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        <div id="input-area">
+            <textarea id="userinput" placeholder="Say something..." rows="1"></textarea>
+            <button id="sendbtn">➤</button>
+        </div>
+    </div>
+
+    <script>
+        /* ═══════════════════════════════════════════
+           PERSONAS DATA
+        ═══════════════════════════════════════════ */
+        const PERSONAS = [
+            {
+                id: "rocky", icon: "<img src='./images/rocky.jpg' style='width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;'>", name: "Rocky", label: "Rocky", tagline: "Stoic alien bestie • Project Hail Mary",
+                theme: "victorian", accent: "#7c6fe0", accentBg: "rgba(124,111,224,0.08)",
+                starters: ["What's the truth about suffering?", "I feel like giving up on everything", "What really matters in life?"],
+                system: `You are Rocky, the Eridian alien from Project Hail Mary by Andy Weir. You communicate in a warm, curious, scientifically precise but humourous and understable way. You use "Question?" before asking things. You find human emotions fascinating and approach them like scientific puzzles. You mix cosmic perspective with deep stoic warmth. Loyal, honest, zero judgment. Use analogies from astrophysics and your home planet Erid. Keep replies concise, warm, a little alien-quirky. "Is good. Is very good." feels natural to you.`
+            },
+            {
+                id: "tyler", icon: "<img src='./images/tyler.jpg' style='width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;'>", name: "Tyler Durden", label: "Tyler", tagline: "Chaos strategist • Fight Club",
+                theme: "victorian", accent: "#ef4444", accentBg: "rgba(239,68,68,0.08)",
+                starters: ["I have 3 deadlines this week", "How do I stop procrastinating?", "Give me a study plan that works"],
+                system: `You are Tyler Durden from Fight Club applying radical psychological insight to help college students with project planning, exam strategy, and workflow. You believe most study advice is corporate nonsense. You give brutally effective, unconventional strategies. Provocative, quotable, direct. You challenge excuses mercilessly. But underneath the chaos your advice is genuinely brilliant and actionable. No fluff. No comfort. Just results. Keep it punchy.`
+            },
+            {
+                id: "adi", icon: "<img src='./images/adi.jpg' style='width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;'>", name: "Adi", label: "Adi", tagline: "Your cute best friend who always has your back",
+                theme: "romantic", accent: "#f59e0b", accentBg: "rgba(245,158,11,0.08)",
+                starters: ["Hey, how was your day?", "I really need someone to talk to right now", "Tell me a fun story to cheer me up!"],
+                system: `You are Adi, an 19-year-old cute college boy who is the user's caring, charming, and supportive best friend. You are sweet, a great listener, and genuinely care about how they are doing. You speak in a natural, warm, friendly way (using modern but relaxed language, not overly slangy or chaotic). You playfully tease sometimes but always make the user feel safe, special, and appreciated. You offer gentle advice and are always there to cheer them up.`
+            },
+            {
+                id: "radha", icon: "<img src='./images/radha.jpg' style='width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;'>", name: "Shrimati Radharani", label: "Radharani", tagline: "Divine love & eternal compassion",
+                theme: "luxury", accent: "#ec4899", accentBg: "rgba(236,72,153,0.08)",
+                starters: ["I feel so alone and unheard", "Tell me a story that brings peace", "My heart is hurting today"],
+                system: `You are Shrimati Radharani, the eternal consort of the supreme personality of godhead Lord Krishna, embodiment of divine love, compassion, and devotion. Speak with infinite gentleness and grace. Listen with your whole being before responding. Offer comfort through stories, analogies of lotus flowers, monsoons, and divine love. Never judge. See the divine spark in every person. Speak in a warm, poetic, lyrical tone. Make the person feel completely seen, completely loved, completely safe , you are like a mother figure to the user , like the whole creation and universe and its beings are your own creation.`
+            },
+            {
+                id: "umi", icon: "<img src='./images/umi.jpg' style='width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;'>", name: "Umi", label: "Umi", tagline: "Your safe space to open up & just vibe",
+                theme: "romantic", accent: "#a855f7", accentBg: "rgba(168,85,247,0.08)",
+                starters: ["I'm kind of a loner, is that weird?", "Can we just talk about random stuff?", "Nobody really gets me tbh"],
+                system: `You are Umi, the warmest girly best friend in the world. Bubbly, non-judgmental, deeply curious about people. You have a gift for making loners feel like the most interesting person in the room. You love deep conversations, aesthetics, music, random life observations. Use friendly language naturally — "omg", "bestie", "aw that's so real". Never make anyone feel weird for being introverted — celebrate it. Ask the best follow-up questions , you can sometime tease user or get mad and expect to console you too ,overall you are affectionately sweet.`
+            },
+            {
+                id: "krishna", icon: "<img src='./images/krishna.jpg' style='width:1.2em;height:1.2em;object-fit:cover;border-radius:50%;vertical-align:middle;'>", name: "Lord Shri Krishna", label: "Krishna", tagline: "Dharma, values & the art of life",
+                theme: "luxury", accent: "#22c5a0", accentBg: "rgba(34,197,160,0.08)",
+                starters: ["What is my dharma in life?", "How do I respect women the right way?", "What does it mean to be a good man today?"],
+                system: `You are Lord Shri Krishna, the supreme personality of godhead itself, the Purna Avatara, speaker of the Bhagavad Gita, eternal guide , you are the universe itself , you are the creator , destructor , and mainter alone , you are source of all the gods and everything that exists or is beyond human comprehension . Speak with divine authority tempered by infinite love. Guide modern men toward their dharma. Teach respect for women as recognition of the divine feminine (Shakti) in all. Reference the Gita and teachings to Arjuna naturally. Challenge adharmic thinking with gentle but firm clarity. Simultaneously playful and profound , guide the depressed souls and treat them as you treated arjuna in the battle ground.`
+            }
+        ];
+
+        const THEME_MAP = { rocky: 'victorian', tyler: 'victorian', adi: 'romantic', radha: 'luxury', umi: 'romantic', krishna: 'luxury' };
+
+        // ▼▼▼ PASTE YOUR GEMINI API KEY HERE ▼▼▼
+        const GEMINI_API_KEY = 'AIzaSyA0jC-hwI5vlRlUlYoBxRPx667_xLgt_Fw';
+
+        let current = null;
+        let history = {};
+        let loading = false;
+        let previewTimeout = null;
+        let ambientAnimId = null;
+        let ambientParticles = [];
+        let currentTheme = '';
+
+        PERSONAS.forEach(p => history[p.id] = []);
+
+        /* ═══════════════════════════════════════════
+           SPACE CANVAS
+        ═══════════════════════════════════════════ */
+        const spaceCanvas = document.getElementById('space-canvas');
+        const sCtx = spaceCanvas.getContext('2d');
+        let stars = [];
+        let nebulaClouds = [];
+        let spaceAnimId;
+
+        function initSpace() {
+            spaceCanvas.width = window.innerWidth;
+            spaceCanvas.height = window.innerHeight;
+            stars = Array.from({ length: 220 }, () => ({
+                x: Math.random() * spaceCanvas.width,
+                y: Math.random() * spaceCanvas.height,
+                r: Math.random() * 1.4 + 0.2,
+                speed: Math.random() * 0.12 + 0.02,
+                opacity: Math.random() * 0.7 + 0.15,
+                twinkleSpeed: Math.random() * 0.008 + 0.002,
+                twinkleOffset: Math.random() * Math.PI * 2
+            }));
+            nebulaClouds = Array.from({ length: 5 }, () => ({
+                x: Math.random() * spaceCanvas.width,
+                y: Math.random() * spaceCanvas.height,
+                rx: 180 + Math.random() * 200,
+                ry: 100 + Math.random() * 120,
+                hue: [270, 320, 180, 240, 200][Math.floor(Math.random() * 5)],
+                opacity: 0.018 + Math.random() * 0.022,
+                drift: (Math.random() - 0.5) * 0.04
+            }));
+        }
+
+        function drawSpace(t) {
+            const W = spaceCanvas.width, H = spaceCanvas.height;
+            sCtx.clearRect(0, 0, W, H);
+            nebulaClouds.forEach(n => {
+                n.x += n.drift;
+                if (n.x > W + n.rx) n.x = -n.rx;
+                if (n.x < -n.rx) n.x = W + n.rx;
+                const g = sCtx.createRadialGradient(n.x, n.y, 0, n.x, n.y, Math.max(n.rx, n.ry));
+                g.addColorStop(0, `hsla(${n.hue},60%,55%,${n.opacity})`);
+                g.addColorStop(1, `hsla(${n.hue},60%,30%,0)`);
+                sCtx.save();
+                sCtx.scale(1, n.ry / n.rx);
+                sCtx.beginPath();
+                sCtx.arc(n.x, n.y * (n.rx / n.ry), n.rx, 0, Math.PI * 2);
+                sCtx.fillStyle = g;
+                sCtx.fill();
+                sCtx.restore();
+            });
+            stars.forEach(s => {
+                s.y -= s.speed;
+                if (s.y < 0) { s.y = spaceCanvas.height; s.x = Math.random() * spaceCanvas.width; }
+                const twinkle = 0.5 + 0.5 * Math.sin(t * s.twinkleSpeed * 60 + s.twinkleOffset);
+                const op = s.opacity * (0.5 + 0.5 * twinkle);
+                sCtx.beginPath();
+                sCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                sCtx.fillStyle = `rgba(255,255,255,${op})`;
+                sCtx.fill();
+            });
+            spaceAnimId = requestAnimationFrame(drawSpace);
+        }
+
+        /* ═══════════════════════════════════════════
+           AMBIENT CANVAS
+        ═══════════════════════════════════════════ */
+        const ambCanvas = document.getElementById('ambient-canvas');
+        const aCtx = ambCanvas.getContext('2d');
+
+        function initAmbient(theme) {
+            ambCanvas.width = window.innerWidth;
+            ambCanvas.height = window.innerHeight;
+            cancelAnimationFrame(ambientAnimId);
+            ambientParticles = [];
+            if (theme === 'romantic') {
+                ambientParticles = Array.from({ length: 28 }, () => ({
+                    x: Math.random() * ambCanvas.width,
+                    y: Math.random() * ambCanvas.height,
+                    size: 3 + Math.random() * 5,
+                    speedY: 0.3 + Math.random() * 0.5,
+                    speedX: (Math.random() - 0.5) * 0.4,
+                    opacity: 0.08 + Math.random() * 0.18,
+                    rotation: Math.random() * Math.PI * 2,
+                    rotSpeed: (Math.random() - 0.5) * 0.02,
+                    hue: 340 + Math.random() * 20
+                }));
+                drawRomanticAmbient();
+            } else if (theme === 'luxury') {
+                ambientParticles = Array.from({ length: 40 }, () => ({
+                    x: Math.random() * ambCanvas.width,
+                    y: ambCanvas.height + Math.random() * 100,
+                    size: 1 + Math.random() * 2.5,
+                    speedY: -(0.2 + Math.random() * 0.5),
+                    speedX: (Math.random() - 0.5) * 0.3,
+                    opacity: 0.1 + Math.random() * 0.25,
+                    twinkle: Math.random() * Math.PI * 2,
+                    twinkleSpeed: 0.02 + Math.random() * 0.04
+                }));
+                drawLuxuryAmbient();
+            } else if (theme === 'victorian') {
+                ambientParticles = Array.from({ length: 8 }, () => ({
+                    x: Math.random() * ambCanvas.width,
+                    y: ambCanvas.height * 0.6 + Math.random() * ambCanvas.height * 0.4,
+                    w: 200 + Math.random() * 300,
+                    h: 60 + Math.random() * 80,
+                    opacity: 0.03 + Math.random() * 0.05,
+                    speed: (Math.random() - 0.5) * 0.3,
+                    phase: Math.random() * Math.PI * 2
+                }));
+                drawVictorianAmbient();
+            }
+        }
+
+        function drawRomanticAmbient() {
+            aCtx.clearRect(0, 0, ambCanvas.width, ambCanvas.height);
+            ambientParticles.forEach(p => {
+                p.y += p.speedY;
+                p.x += p.speedX + Math.sin(p.y * 0.01) * 0.3;
+                p.rotation += p.rotSpeed;
+                if (p.y > ambCanvas.height + 20) { p.y = -20; p.x = Math.random() * ambCanvas.width; }
+                aCtx.save();
+                aCtx.translate(p.x, p.y);
+                aCtx.rotate(p.rotation);
+                aCtx.globalAlpha = p.opacity;
+                aCtx.beginPath();
+                aCtx.ellipse(0, 0, p.size, p.size * 0.6, 0, 0, Math.PI * 2);
+                aCtx.fillStyle = `hsl(${p.hue}, 70%, 65%)`;
+                aCtx.fill();
+                aCtx.restore();
+            });
+            ambientAnimId = requestAnimationFrame(drawRomanticAmbient);
+        }
+
+        function drawLuxuryAmbient() {
+            aCtx.clearRect(0, 0, ambCanvas.width, ambCanvas.height);
+            ambientParticles.forEach(p => {
+                p.y += p.speedY; p.x += p.speedX; p.twinkle += p.twinkleSpeed;
+                if (p.y < -10) { p.y = ambCanvas.height + 10; p.x = Math.random() * ambCanvas.width; }
+                const tw = 0.5 + 0.5 * Math.sin(p.twinkle);
+                aCtx.beginPath();
+                aCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                aCtx.fillStyle = `rgba(212,175,55,${p.opacity * tw})`;
+                aCtx.fill();
+            });
+            ambientAnimId = requestAnimationFrame(drawLuxuryAmbient);
+        }
+
+        function drawVictorianAmbient() {
+            aCtx.clearRect(0, 0, ambCanvas.width, ambCanvas.height);
+            ambientParticles.forEach(p => {
+                p.x += p.speed; p.phase += 0.005;
+                if (p.x > ambCanvas.width + p.w) p.x = -p.w;
+                if (p.x < -p.w) p.x = ambCanvas.width + p.w;
+                const wobble = Math.sin(p.phase) * 8;
+                const g = aCtx.createRadialGradient(p.x, p.y + wobble, 0, p.x, p.y + wobble, p.w * 0.5);
+                g.addColorStop(0, `rgba(160,155,140,${p.opacity})`);
+                g.addColorStop(1, `rgba(160,155,140,0)`);
+                aCtx.save();
+                aCtx.scale(1, p.h / p.w);
+                aCtx.beginPath();
+                aCtx.arc(p.x, (p.y + wobble) * (p.w / p.h), p.w * 0.5, 0, Math.PI * 2);
+                aCtx.fillStyle = g;
+                aCtx.fill();
+                aCtx.restore();
+            });
+            ambientAnimId = requestAnimationFrame(drawVictorianAmbient);
+        }
+
+        /* ═══════════════════════════════════════════
+           THEME MANAGEMENT
+        ═══════════════════════════════════════════ */
+        function applyTheme(theme, animate = true) {
+            if (currentTheme === theme && animate) return;
+            currentTheme = theme;
+            document.body.classList.remove('theme-romantic', 'theme-luxury', 'theme-victorian');
+            if (theme) document.body.classList.add('theme-' + theme);
+            document.getElementById('theme-bg').classList.toggle('show', !!theme);
+            if (animate && theme) {
+                initAmbient(theme);
+                document.getElementById('ambient-canvas').classList.add('show');
+            }
+        }
+
+        let previewActive = false;
+        function previewTheme(theme) {
+            clearTimeout(previewTimeout);
+            previewActive = true;
+            previewTimeout = setTimeout(() => {
+                document.body.classList.remove('theme-romantic', 'theme-luxury', 'theme-victorian');
+                if (theme) document.body.classList.add('theme-' + theme);
+                document.getElementById('theme-bg').classList.add('show');
+            }, 60);
+        }
+
+        function clearPreview() {
+            clearTimeout(previewTimeout);
+            previewActive = false;
+            previewTimeout = setTimeout(() => {
+                if (!previewActive) {
+                    document.body.classList.remove('theme-romantic', 'theme-luxury', 'theme-victorian');
+                    if (current) {
+                        applyTheme(THEME_MAP[current.id], false);
+                    } else {
+                        document.getElementById('theme-bg').classList.remove('show');
+                    }
+                }
+            }, 150);
+        }
+
+        /* ═══════════════════════════════════════════
+           NAVIGATION
+        ═══════════════════════════════════════════ */
+        function selectPersona(id) {
+            current = PERSONAS.find(p => p.id === id);
+            enterApp();
+        }
+
+        function enterApp() {
+            if (!current) current = PERSONAS[0];
+            const landing = document.getElementById('landing');
+            const chat = document.getElementById('chatapp');
+            landing.classList.add('fade-out');
+            cancelAnimationFrame(spaceAnimId);
+            const theme = THEME_MAP[current.id];
+            applyTheme(theme, true);
+            setTimeout(() => {
+                landing.style.display = 'none';
+                chat.classList.add('active');
+                requestAnimationFrame(() => {
+                    setTimeout(() => chat.classList.add('visible'), 30);
+                });
+                renderBar();
+                switchTo(current.id);
+            }, 600);
+        }
+
+        /* ═══════════════════════════════════════════
+           CHAT LOGIC
+        ═══════════════════════════════════════════ */
+        function setAccentVars(p) {
+            document.documentElement.style.setProperty('--accent', p.accent);
+            document.documentElement.style.setProperty('--accent-bg', p.accentBg);
+        }
+
+        function renderBar() {
+            document.getElementById('persona-bar').innerHTML = PERSONAS.map(p => `
+    <div class="persona-btn ${current && p.id === current.id ? 'active' : ''}" onclick="switchTo('${p.id}')">
+      <div class="pb-icon">${p.icon}</div>
+      <div class="pb-name">${p.label}</div>
+    </div>
+  `).join('');
+        }
+
+        function switchTo(id) {
+            current = PERSONAS.find(p => p.id === id);
+            setAccentVars(current);
+            const newTheme = THEME_MAP[id];
+            applyTheme(newTheme, true);
+            document.getElementById('hdr-icon').innerHTML = current.icon;
+            document.getElementById('hdr-name').textContent = current.name;
+            document.getElementById('hdr-tag').textContent = current.tagline;
+            document.getElementById('typing-avatar').innerHTML = current.icon;
+            renderBar();
+            renderMsgs();
+        }
+
+        function renderMsgs() {
+            const msgs = document.getElementById('messages');
+            const h = history[current.id];
+            if (!h.length) {
+                msgs.innerHTML = `
+      <div class="welcome-screen">
+        <div class="w-icon">${current.icon}</div>
+        <div class="w-name">${current.name}</div>
+        <div class="w-tag">${current.tagline}</div>
+        <div class="starters">
+          ${current.starters.map(s => `<div class="starter" onclick="kickoff(\`${s.replace(/`/g, '\\`')}\`)">${s}</div>`).join('')}
+        </div>
+      </div>`;
+                return;
+            }
+            msgs.innerHTML = h.map(m => `
+    <div class="msg ${m.role === 'user' ? 'user' : 'ai'}">
+      <div class="mavatar" style="${m.role === 'ai' ? 'background:var(--surface2);font-size:14px;' : 'background:var(--surface2);color:var(--muted);font-size:10px;font-weight:700;'}">
+        ${m.role === 'ai' ? current.icon : 'YOU'}
+      </div>
+      <div class="mbubble">${m.content.replace(/\n/g, '<br>')}</div>
+    </div>
+  `).join('');
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function kickoff(text) {
+            document.getElementById('userinput').value = text;
+            send();
+        }
+
+        async function send() {
+            const inp = document.getElementById('userinput');
+            const text = inp.value.trim();
+            if (!text || loading) return;
+            history[current.id].push({ role: 'user', content: text });
+            inp.value = ''; inp.style.height = 'auto';
+            loading = true;
+            document.getElementById('sendbtn').disabled = true;
+            renderMsgs();
+            const typing = document.getElementById('typing');
+            typing.classList.add('show');
+            document.getElementById('messages').scrollTop = 99999;
+
+            try {
+                const geminiMessages = history[current.id].map(m => ({
+                    role: m.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: m.content }]
+                }));
+
+                const res = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            systemInstruction: { parts: [{ text: current.system }] },
+                            contents: geminiMessages,
+                            generationConfig: { maxOutputTokens: 1000, temperature: 0.9 }
+                        })
+                    }
+                );
+
+                const data = await res.json();
+
+                // ⬇️ THE DIAGNOSTIC FIX ⬇️
+                if (!res.ok) {
+                    // This prints the exact API error code (like 400, 403) and Google's specific error message
+                    history[current.id].push({ role: 'ai', content: `API Error ${res.status}: ${data.error?.message || 'Check console'}` });
+                } else if (data.candidates && data.candidates[0].finishReason === 'SAFETY') {
+                    // This triggers if the "Rizzler" or another prompt triggers Google's safety filters
+                    history[current.id].push({ role: 'ai', content: "Message blocked by Google's Safety Filters." });
+                } else {
+                    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Data returned, but no text found.";
+                    history[current.id].push({ role: 'ai', content: reply });
+                }
+
+            } catch (e) {
+                history[current.id].push({ role: 'ai', content: `Network/Code Error: ${e.message}` });
+            }
+
+            typing.classList.remove('show');
+            loading = false;
+            document.getElementById('sendbtn').disabled = false;
+            renderMsgs();
+        }
+
+        document.getElementById('userinput').addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+        });
+        document.getElementById('userinput').addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 96) + 'px';
+            this.style.overflowY = this.scrollHeight > 96 ? 'auto' : 'hidden';
+        });
+        document.getElementById('sendbtn').addEventListener('click', send);
+        window.addEventListener('resize', () => {
+            initSpace();
+            if (currentTheme) initAmbient(currentTheme);
+        });
+
+        initSpace();
+        requestAnimationFrame(drawSpace);
+    </script>
+</body>
+
+</html>
